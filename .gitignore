@@ -1,0 +1,5 @@
+*.egg-info/
+*.pytest_cache/
+build/
+__pycache__/
+media/
