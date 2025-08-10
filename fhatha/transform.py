@@ -23,8 +23,6 @@ def precalculate_js(xy0, n_samples, alpha) -> np.ndarray:
     return 2* np.pi * xy_padded * alpha * j0(2*np.pi * xy_padded)
 
 
-
-
 # MAGNI original method
 def magni_grid(n_samples: int, alpha: float, x0: float) -> tuple:
     idx = np.arange((n_samples))
@@ -44,8 +42,10 @@ def fhta_single(
     ys = xs
     ysp = magni_grid(2*n_samples, alpha, x0)
     k0 = 3/(8*alpha) + 1/2 # FIXME, still the approximation
-    
-    phis = (fsp - np.roll(fsp, -1)) * np.exp((np.arange(2*n_samples) - n_samples + 1) * alpha)
+    fsp_rolled = np.roll(fsp, -1)
+    assert fsp_rolled[1] == fsp[2]
+    fsp_rolled[0] = 0.0
+    phis = (fsp - fsp_rolled) * np.exp((np.arange(2*n_samples) - n_samples + 1) * alpha)
     phis[0] *= k0
     phis[n_samples:] *= 0.0
     
@@ -55,7 +55,7 @@ def fhta_single(
     return xs, ys, correlate(phis, js) / ysp / fresnel
     
 def precalculate_js_magni(
-    x0, 
+    x0,
     n_samples, 
     alpha, 
     fresnel) -> np.ndarray:
