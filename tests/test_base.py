@@ -77,6 +77,7 @@ def test_siegman(function=flat_top, label="ft", fresnel=1):
                bias = 0.0)
     # get the Siegman transformed function from scipy
     g = gpy # note that in the plots of Siegman we are plotting k g(k).
+    _, _, g_siegman   = tr.naive_siegman(fpy[:n_samples], dln, r0, k0)
     
     plt.figure(figsize=(4, 2.5))
     plt.plot(idxp, fpy, label='Original Data')
@@ -94,19 +95,25 @@ def test_siegman(function=flat_top, label="ft", fresnel=1):
     plt.xlim(0, n_samples/4)
     plt.ylim(-0.5, 1.6)
     plt.tight_layout()
-    plt.savefig('media/'+label+'_physical_transform.png')
+    name = 'media/'+label+'_physical_transform.pdf'
+    plt.savefig(name)
+    print("Saved to ", name)
     
     # samples
     exact = function(log_k_p, transform=True) * (log_k_p * fresnel)
     plt.figure(figsize=(4, 2.5))
-    plt.plot(idxp, g * 2, label='Transformed Data')
-    plt.plot(idxp, exact, label='Transformed Data')
+    plt.plot(idxp, g, label="scipy")
+    plt.plot(idxp, g_siegman, label="siegman")
+    plt.plot(idxp, exact, label="exact")
+    plt.legend()
     plt.xlabel('idx')
     plt.axvline(n_samples, color='red', linestyle='--', label='n_samples')
     # plt.axvline(np.log(1/log_k_p[-1]) * n_samples, color='red', linestyle='--', label='n_samples')
     # plt.xlim(0, 100)
     plt.tight_layout()
-    plt.savefig('media/'+label+'_transformed_samples.png')
+    name = 'media/'+label+'_transformed_samples.pdf'
+    plt.savefig(name)
+    print("Saved to ", name)
     
 
 def test_naive_siegman():
@@ -172,7 +179,7 @@ def test_naive_magni(fresnel = 1, clip_reference = 1):
     fs = log_r * f
     fs_m = log_r_magni * f_magni
     # fs = np.pad(fs, (0, n_samples), 'constant', constant_values=0) -> we are already padding  
-    equivalent_k0 = r0 * fresnel / 2 / np.pi # for the classical Siegman method
+    equivalent_k0 = r0 * fresnel / (2*np.pi) # for the classical Siegman method
     _, _, g   = tr.naive_siegman(fs, dln, r0, equivalent_k0)
     _, _, g_m = tr.fhta_single(fs_m, dln, r0, fresnel=fresnel)
     g_m /= 2 * np.pi #  FIXME this trial is probably wrong
@@ -184,13 +191,13 @@ def test_naive_magni(fresnel = 1, clip_reference = 1):
     # - every transform starts from the same point at null k 
     # assert np.isclose(g, 0.0)
     
-    exact = magni(2* np.pi * log_r_magni, transform=True) # adapt for the calculation with the actual eta
+    exact = magni(2* np.pi * fresnel * log_r_magni, transform=True) # adapt for the calculation with the actual eta
     siegman = g
     fig, ax1 = plt.subplots(figsize=(5, 4))
     color1 = 'tab:blue'
-    
+    color1b = 'orange'
     for reference in [exact, siegman][:clip_reference]:
-        ax1.plot(log_r_magni, np.real(reference)[:n_samples], lw=1.2, ls="-", color=color1)
+        ax1.plot(log_r_magni, np.real(reference)[:n_samples], lw=1.2, ls="-")
         # ax1.plot(log_r_magni, np.imag(reference)[:n_samples], lw=1.2, ls=":")
    
     ax1.set_ylabel("reference", color=color1)
@@ -217,7 +224,8 @@ def test_naive_magni(fresnel = 1, clip_reference = 1):
   
     
 if __name__ == "__main__":
-    test_naive_magni(clip_reference=2)
+    test_siegman(function=flat_top, label="ft", fresnel = 1)
     exit()
+    test_naive_magni(clip_reference=2)
     test_siegman(function=flat_top, label="ft", fresnel = 1)
     test_siegman(function=magni,    label="mg", fresnel = 3)
