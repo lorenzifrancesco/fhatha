@@ -11,23 +11,17 @@ lg.basicConfig(
     format="%(asctime)s [%(levelname)s] %(message)s"  # basic format
 )
 
-
 def correlate(fs, js):
     return fft(fft(fs) * ifft(js))
 
 # SIEGMAN original method
-
-
 def naive_siegman(fs: np.ndarray, alpha: float, x0: float, y0: float) -> np.ndarray:
     n_samples = len(fs)
     fsp = np.pad(fs, (0, n_samples), mode='constant', constant_values=0)
     xs = np.exp(np.arange(n_samples) * alpha) * x0
     ys = np.exp(np.arange(n_samples) * alpha) * y0
     js = precalculate_js(x0*y0, n_samples, alpha)
-    return xs, ys, correlate(fsp, js)
-
-# alpha = dln
-
+    return xs, ys, correlate(fsp, js) / (n_samples * 2)
 
 def precalculate_js(xy0, n_samples, alpha) -> np.ndarray:
     xy_padded = xy0 * np.exp(np.arange((2 * n_samples)) * alpha)
