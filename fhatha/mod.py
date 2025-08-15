@@ -5,7 +5,6 @@ from scipy import optimize
 from matplotlib import pyplot as plt
 import logging as lg
 
-# One-time setup (do this near program start)
 lg.basicConfig(
     level=lg.WARN,
     format="%(asctime)s [%(levelname)s] %(message)s"  # basic format
