@@ -1,4 +1,4 @@
-from fhatha import transform as tr
+from fhatha import misc as tr
 import numpy as np
 from scipy.special import jv, j0
 import scipy.fft as sp

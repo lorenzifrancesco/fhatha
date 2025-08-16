@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 from functions import magni, flat_top
 
 
-def test_naive_magni(fresnel = 10, clip_reference = 1, func = magni):
+def test_compatibility_with_magni(fresnel = 10, clip_reference = 1, func = magni):
     n_samples = 512 # with 128 it is really really good
     # FIXME hypotesis: one needs to be aware of how high it sets the minimum radius. it is not good to have it too low, since then an enormous number of radii will be low.
     idx = np.arange((n_samples))
@@ -24,10 +24,14 @@ def test_naive_magni(fresnel = 10, clip_reference = 1, func = magni):
     
     ### CALCULATIONS WITHIN THE CLASS
     fh = md.FastAccurateHankel(n_samples, fresnel)
-    f_organized = fh.pad_2x(fh.sample(lambda k: func(k, transform=False)))
+    # f_organized = fh.pad_2x(fh.sample(lambda k: func(k, transform=False))) # no more!
+    f_organized = fh.sample(lambda k: func(k, transform=False))
     g_m = fh.fht(f_organized)
     
     exact = func(2 * np.pi * fresnel * log_k * (1-1/n_samples), transform=True) # adapt for the calculation with the actual eta
+    
+    
+    ## PLOTTING
     fig, ax1 = plt.subplots(figsize=(5, 4))
     magnic = 'blue'
     siegmanc = 'green'
@@ -45,7 +49,6 @@ def test_naive_magni(fresnel = 10, clip_reference = 1, func = magni):
     ax1.ticklabel_format(style='sci', axis='x', scilimits=(3, 0))
 
     ax2 = ax1.twinx()
-
     ax2.tick_params(axis='y', labelcolor="black")
     ax2.ticklabel_format(style='sci', axis='y', scilimits=(3, 0))
     ax1.axhline(0, color='black', lw=0.1, ls="--")
@@ -67,4 +70,4 @@ def test_naive_magni(fresnel = 10, clip_reference = 1, func = magni):
     print(f"Saved plot to {name}")
     
 if __name__ == "__main__":
-    test_naive_magni(clip_reference=2)
+    test_compatibility_with_magni(clip_reference=2)
