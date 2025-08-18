@@ -8,7 +8,7 @@ from functions import magni, flat_top
 
 
 def test_compatibility_with_magni(fresnel = 10, clip_reference = 1, func = magni):
-    n_samples = 512 # with 128 it is really really good
+    n_samples = 128 # with 128 it is really really good
     # FIXME hypotesis: one needs to be aware of how high it sets the minimum radius. it is not good to have it too low, since then an enormous number of radii will be low.
     idx = np.arange((n_samples))
     idxp = np.arange((2*n_samples))
@@ -23,12 +23,12 @@ def test_compatibility_with_magni(fresnel = 10, clip_reference = 1, func = magni
     _, ys, g_siegman   = tr.naive_siegman(f_siegman, dln, r0, fresnel)
     
     ### CALCULATIONS WITHIN THE CLASS
-    fh = md.FastAccurateHankel(n_samples, fresnel)
+    fh = md.FastAccurateHankel(n_samples, fresnel, r_max=1)
     # f_organized = fh.pad_2x(fh.sample(lambda k: func(k, transform=False))) # no more!
     f_organized = fh.sample(lambda k: func(k, transform=False))
     g_m = fh.fht(f_organized)
     
-    exact = func(2 * np.pi * fresnel * log_k * (1-1/n_samples), transform=True) # adapt for the calculation with the actual eta
+    exact = func(2 * np.pi * fresnel * log_k, transform=True) # FIXME adapt for the calculation with the actual eta
     
     
     ## PLOTTING
@@ -62,8 +62,9 @@ def test_compatibility_with_magni(fresnel = 10, clip_reference = 1, func = magni
     plt.plot(log_k, np.clip(np.real(g_siegman[:n_samples]-exact), a_min =-1e-2, a_max=1e-2),   lw=0.6, ls="-", label=f"SIEGMAN", color=siegmanc)
     plt.xlabel(r'$k$')
     plt.ylabel(r"$\varepsilon_a$")
-    plt.ylim([-5e-3, 5e-3])
+    plt.ylim([-1e-3, 1e-3])
     plt.legend()
+    plt.ticklabel_format(style='sci', axis='both', scilimits=(0,0))
     plt.tight_layout()
     name = 'media/error.pdf'
     plt.savefig(name)

@@ -27,7 +27,6 @@ class FastAccurateHankel():
         self.k0 =  3/(8*self.alpha) + 1/2  # TODO, still the approximation
         self.kr = grid * 2 * np.pi * fresnel / self.r_max # besides the numerical grid, this is the actual k space in normalized units
         
-        
 
     # core definitions: optimal grid and convolution kernel    
     def generate_grid(self) -> tuple:
@@ -61,12 +60,13 @@ class FastAccurateHankel():
         assert(len(fs)==self.n_samples)
         fs_rolled = np.roll(fs, -1)
         fs_rolled[-1] = 0.0
-        assert fs_rolled[1] == fs[2] # TODO HALT
-        phis = np.zeros(2*self.n_samples)
+        assert fs_rolled[1] == fs[2] # TODO HALT FIXME
+        phis = np.zeros(2*self.n_samples, dtype=complex)
         phis[:self.n_samples] = (fs - fs_rolled) * \
             np.exp((np.arange(self.n_samples) - self.n_samples + 1) * self.alpha)
         phis[0] *= self.k0
-        return self.correlate(phis, self.js)[:self.n_samples] / (self.fresnel * self.grid / self.r_max**2)
+        print(self.fresnel)
+        return self.correlate(phis, self.js)[:self.n_samples] / (self.fresnel * self.grid / self.r_max)  # FIXME what is the right scaling
         
     def ifht(self, fs):
         return self.fht(fs)
