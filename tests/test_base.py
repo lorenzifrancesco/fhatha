@@ -12,23 +12,27 @@ def test_compatibility_with_magni(fresnel = 10, clip_reference = 1, func = magni
     # FIXME hypotesis: one needs to be aware of how high it sets the minimum radius. it is not good to have it too low, since then an enormous number of radii will be low.
     idx = np.arange((n_samples))
     idxp = np.arange((2*n_samples))
-   
+    r_max = 1/2
+    
     log_r_magni, r0, dln = tr.magni_grid(n_samples)
     log_r_p = r0 * np.exp((idxp - n_samples + 1) * dln) # this is the first value of the log_r, by construction
     print("selected range:", log_r_magni[:4], "...", log_r_magni[-4:])
     print("first value: ", r0,"last value:", log_r_magni[-1])
     log_k     = log_r_magni
     
-    f_siegman       = func(r0 * np.exp(np.arange(n_samples) * dln), transform=False) 
-    _, ys, g_siegman   = tr.naive_siegman(f_siegman, dln, r0, fresnel)
+    f_siegman       = func(r_max * r0 * np.exp(np.arange(n_samples) * dln), transform=False) 
+    _, ys, g_siegman   = tr.naive_siegman(f_siegman, dln, r0, fresnel, r_max)
     
     ### CALCULATIONS WITHIN THE CLASS
-    fh = md.FastAccurateHankel(n_samples, fresnel, r_max=1)
+    fh = md.FastAccurateHankel(n_samples, fresnel, r_max=1/r_max)
     # f_organized = fh.pad_2x(fh.sample(lambda k: func(k, transform=False))) # no more!
-    f_organized = fh.sample(lambda k: func(k, transform=False))
-    g_m = fh.fht(f_organized)
+    f_organized = fh.sample(lambda r: func(r*r_max, transform=False))
+    g_m = fh.fht(f_organized) / r_max
     
-    exact = func(2 * np.pi * fresnel * log_k, transform=True) # FIXME adapt for the calculation with the actual eta
+    g_siegman /= r_max**4
+    # g_m /= r_max**3
+    
+    exact = func(2 * np.pi * fresnel * log_k / r_max, transform=True) # FIXME adapt for the calculation with the actual eta
     
     
     ## PLOTTING

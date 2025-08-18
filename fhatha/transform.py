@@ -19,14 +19,14 @@ class FastAccurateHankel():
         self.fresnel = fresnel
         self.r_max = r_max
         grid, x0, alpha =  self.generate_grid()
-        self.grid = grid * self.r_max
-        self.r = self.grid  # walkaround
+        self.grid = grid
+        self.r = self.grid * self.r_max  # walkaround
         self.x0 = x0 * self.r_max
         self.alpha = alpha
         self.js = self.prepare_js()
         self.k0 =  3/(8*self.alpha) + 1/2  # TODO, still the approximation
-        self.kr = grid * 2 * np.pi * fresnel / self.r_max # besides the numerical grid, this is the actual k space in normalized units
-        
+        self.kr = grid * 2 * np.pi * fresnel # FIXME besides the numerical grid, this is the actual k space in normalized units
+        2
 
     # core definitions: optimal grid and convolution kernel    
     def generate_grid(self) -> tuple:
@@ -60,14 +60,14 @@ class FastAccurateHankel():
         assert(len(fs)==self.n_samples)
         fs_rolled = np.roll(fs, -1)
         fs_rolled[-1] = 0.0
-        assert fs_rolled[1] == fs[2] # TODO HALT FIXME
+        assert fs_rolled[1] == fs[2]
         phis = np.zeros(2*self.n_samples, dtype=complex)
         phis[:self.n_samples] = (fs - fs_rolled) * \
             np.exp((np.arange(self.n_samples) - self.n_samples + 1) * self.alpha)
         phis[0] *= self.k0
         print(self.fresnel)
-        return self.correlate(phis, self.js)[:self.n_samples] / (self.fresnel * self.grid / self.r_max)  # FIXME what is the right scaling
+        return self.correlate(phis, self.js)[:self.n_samples] / (self.fresnel * self.grid)  # FIXME what is the right scaling
         
     def ifht(self, fs):
-        return self.fht(fs)
+        return self.fht(fs) * self.fresnel**2
          

@@ -17,8 +17,12 @@ def flat_top(x, transform=True):
         b = 1.0 # compatible with the specification of Magni
         return b * jv(1, 2*np.pi* b * x) / (x) # only valid for the parameters alpha, beta, b, r0, rho0 in siegman
     else:
-        return x/x
-
+        if x<=1:
+            return x/x
+        else:
+            return 0
+        
+        
 ## old functions
 def test_siegman(function=flat_top, label="ft", fresnel=1):
     n_samples = 256

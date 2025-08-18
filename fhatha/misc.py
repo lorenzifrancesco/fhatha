@@ -15,10 +15,10 @@ def correlate(fs, js):
     return fft(fft(fs) * ifft(js))
 
 # SIEGMAN original method (Eq. 10 in Magni)
-def naive_siegman(fs: np.ndarray, alpha: float, x0: float, fresnel: float) -> np.ndarray:
+def naive_siegman(fs: np.ndarray, alpha: float, x0: float, fresnel: float, r_max: float) -> np.ndarray:
     n_samples = len(fs)
-    xs = x0 * np.exp(np.arange(n_samples) * alpha)
-    y0 = x0 * fresnel
+    xs = x0 * np.exp(np.arange(n_samples) * alpha) * r_max
+    y0 = x0 * fresnel / r_max
     ys = y0 * np.exp(np.arange(n_samples) * alpha)
     fs *= xs**2
     xy_padded = x0 * y0 * np.exp(np.arange((2 * n_samples)) * alpha)
@@ -115,6 +115,7 @@ def fhta_single(
     # remember x0 = y0 in Magni
     lg.warning(fsp)
     return xs, ys, correlate(phis, js) / ysp / fresnel
+
 
 def foolproof_magni(
         fun,
