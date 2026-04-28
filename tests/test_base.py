@@ -4,7 +4,7 @@ import numpy as np
 from scipy.special import jv, j0
 import scipy.fft as sp
 from matplotlib import pyplot as plt
-from functions import magni, flat_top, gaussian
+from tests.functions import magni, flat_top, gaussian
 
 
 def test_compatibility_with_magni(fresnel = 10, clip_reference = 1, func = magni):
