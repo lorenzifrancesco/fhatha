@@ -15,13 +15,22 @@ def flat_top(x, transform=True):
     if transform:
         # beware, we are using jv1, we should use jv0
         b = 1.0 # compatible with the specification of Magni
-        return b * jv(1, 2*np.pi* b * x) / (x) # only valid for the parameters alpha, beta, b, r0, rho0 in siegman
+        return b * jv(1, 2*np.pi* b * x) / (x)
     else:
         if x<=1:
             return x/x
         else:
             return 0
         
+        
+def gaussian(x, transform=True):
+    sigma = 1/20 # << 1
+    if transform:
+        x /= 2*np.pi
+        # use x <- x * fresnel
+        return np.exp(-2 * np.pi**2 * x**2 * sigma**2)
+    else:
+        return 1/(2*np.pi * sigma**2) * np.exp(-x**2/(2*sigma**2))
         
 ## old functions
 def test_siegman(function=flat_top, label="ft", fresnel=1):

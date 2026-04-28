@@ -18,13 +18,13 @@ def correlate(fs, js):
 def naive_siegman(fs: np.ndarray, alpha: float, x0: float, fresnel: float, r_max: float) -> np.ndarray:
     n_samples = len(fs)
     xs = x0 * np.exp(np.arange(n_samples) * alpha) * r_max
-    y0 = x0 * fresnel / r_max
+    y0 = r_max
     ys = y0 * np.exp(np.arange(n_samples) * alpha)
     fs *= xs**2
     xy_padded = x0 * y0 * np.exp(np.arange((2 * n_samples)) * alpha)
     js = j0(2 * np.pi * xy_padded)
     fsp = np.pad(fs, (0, n_samples), mode='constant', constant_values=0)
-    return xs, np.pad(ys, (0, n_samples), mode="constant", constant_values=1), 2*np.pi*alpha * correlate(fsp, js) # FIXME
+    return xs, np.pad(ys, (0, n_samples), mode="constant", constant_values=1), 2*np.pi*alpha * correlate(fsp, js) * r_max**4 # FIXME
 
 
 # MAGNI original method
